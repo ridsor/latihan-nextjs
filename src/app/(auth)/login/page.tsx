@@ -1,18 +1,33 @@
 "use client";
 
-import axios from "axios";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const router = useRouter();
+
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const { email, password } = e.currentTarget;
 
-    const res = await axios.post("/api/auth/login", {
-      email: email.value,
-      password: password.value,
-    });
+    try {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email: email.value,
+        password: password.value,
+        callbackUrl: "/dashboard",
+      });
+
+      if (res?.ok) {
+        router.push("/dashboard");
+      } else {
+        console.error(res?.error);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -23,7 +38,8 @@ export default function Login() {
             <form
               method="POST"
               className="max-w-md w-full"
-              onSubmit={handleLogin}>
+              onSubmit={handleLogin}
+            >
               <h1 className="font-bold text-2xl mb-10 text-center">
                 Sign in to your account
               </h1>
@@ -31,7 +47,7 @@ export default function Login() {
                 <div className="form-input">
                   <input
                     type="text"
-                    className="px-3 focus:px-[calc(12px-2px)] py-2 focus:py-[calc(8px-2px)] w-full rounded-t-md focus:border-[2px] outline-none border-[#4F46E5]"
+                    className="px-3 relative py-2 focus:ring z-0 focus:z-10 w-full rounded-t-md focus:ring-[#4F46E5] outline-none"
                     placeholder="Email"
                     name="email"
                   />
@@ -39,7 +55,7 @@ export default function Login() {
                 <div className="form-input">
                   <input
                     type="password"
-                    className="px-3 focus:px-[calc(12px-2px)] py-2 focus:py-[calc(8px-2px)] w-full rounded-b-md focus:border-[2px] outline-none border-[#4F46E5]"
+                    className="px-3 focus:ring relative focus:z-10 z-0 py-2 w-full rounded-b-md focus:ring-[#4F46E5] outline-none"
                     placeholder="Password"
                     name="password"
                   />
@@ -47,7 +63,8 @@ export default function Login() {
               </div>
               <button
                 type="submit"
-                className="w-full px-3 py-2 bg-[rgb(79,70,229)] text-white rounded-md font-bold hover:bg-[rgb(79,120,229)] text-base mb-10">
+                className="w-full px-3 py-2 bg-[rgb(79,70,229)] text-white rounded-md font-bold hover:bg-[rgb(79,120,229)] text-base mb-10"
+              >
                 Sign in
               </button>
               <div className="text-center">

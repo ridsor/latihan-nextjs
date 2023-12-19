@@ -1,10 +1,10 @@
+import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 type Props = {};
 
 const Navbar = (props: Props) => {
-  const router = useRouter();
+  const data = useSession();
 
   return (
     <nav className="py-2 px-4 flex bg-black text-white items-center justify-between">
@@ -26,11 +26,21 @@ const Navbar = (props: Props) => {
         </ul>
       </div>
       <div className="right">
-        <button
-          className="bg-white px-4 py-1 rounded-md text-black"
-          onClick={() => router.push("/login")}>
-          Login
-        </button>
+        {data.status === "authenticated" ? (
+          <button
+            className="bg-white px-4 py-1 rounded-md text-black"
+            onClick={() => signOut()}
+          >
+            Logout
+          </button>
+        ) : (
+          <button
+            className="bg-white px-4 py-1 rounded-md text-black"
+            onClick={() => signIn()}
+          >
+            Login
+          </button>
+        )}
       </div>
     </nav>
   );
