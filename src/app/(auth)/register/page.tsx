@@ -11,6 +11,8 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setRegisterLoading(true);
+    setValidate([]);
 
     const data = {
       fullname: e.currentTarget.fullname.value,
@@ -47,10 +49,7 @@ export default function Register() {
             <form
               method="POST"
               className="max-w-md w-full"
-              onSubmit={(e) => {
-                handleSubmit(e);
-                setRegisterLoading(true);
-              }}>
+              onSubmit={handleSubmit}>
               <h1 className="font-bold text-2xl mb-10 text-center">Sign up</h1>
               {validate.length > 0 && (
                 <ul className="flex flex-col gap-1 text-red-400 mb-5">
@@ -92,7 +91,7 @@ export default function Register() {
                     ? "bg-gray-400"
                     : "hover:bg-[rgb(79,120,229)] bg-[rgb(79,70,229)]"
                 } w-full px-3 py-2 text-white rounded-md font-bold text-base mb-10`}>
-                Sign up
+                {registerLoading ? "Loding..." : "Sign up"}
               </button>
               <div className="text-center">
                 <span>

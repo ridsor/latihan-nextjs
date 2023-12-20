@@ -5,6 +5,7 @@ type Props = {};
 
 const Navbar = (props: Props) => {
   const data = useSession();
+  console.log(data)
 
   return (
     <nav className="py-2 px-4 flex bg-black text-white items-center justify-between">

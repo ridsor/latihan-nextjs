@@ -3,12 +3,18 @@
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Login() {
   const router = useRouter();
 
+  const [loginLoading, setLoginLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoginLoading(true);
+    setError("");
 
     const { email, password } = e.currentTarget;
 
@@ -23,7 +29,8 @@ export default function Login() {
       if (res?.ok) {
         router.push("/dashboard");
       } else {
-        console.error(res?.error);
+        setLoginLoading(false);
+        setError("Incorrect email and password");
       }
     } catch (e) {
       console.error(e);
@@ -38,11 +45,15 @@ export default function Login() {
             <form
               method="POST"
               className="max-w-md w-full"
-              onSubmit={handleLogin}
-            >
+              onSubmit={handleLogin}>
               <h1 className="font-bold text-2xl mb-10 text-center">
                 Sign in to your account
               </h1>
+              {error && (
+                <ul className="flex flex-col gap-1 text-red-400 mb-5">
+                  <li>{error}</li>
+                </ul>
+              )}
               <div className="form-inputs divide-y border [box-shadow:0_0_3px_1px_rgba(0,0,0,.1)] mb-10 rounded-md">
                 <div className="form-input">
                   <input
@@ -62,10 +73,13 @@ export default function Login() {
                 </div>
               </div>
               <button
-                type="submit"
-                className="w-full px-3 py-2 bg-[rgb(79,70,229)] text-white rounded-md font-bold hover:bg-[rgb(79,120,229)] text-base mb-10"
-              >
-                Sign in
+                disabled={loginLoading}
+                className={`${
+                  loginLoading
+                    ? "bg-gray-400"
+                    : "hover:bg-[rgb(79,120,229)] bg-[rgb(79,70,229)]"
+                } w-full px-3 py-2 text-white rounded-md font-bold text-base mb-10`}>
+                {loginLoading ? "Loading..." : "Sign up"}
               </button>
               <div className="text-center">
                 <span>

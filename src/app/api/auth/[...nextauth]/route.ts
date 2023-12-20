@@ -1,8 +1,12 @@
+import { login } from "@/lib/firebase/service";
 import { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
-import CredentialsProvider, {
-  CredentialInput,
-} from "next-auth/providers/credentials";
+import CredentialsProvider from "next-auth/providers/credentials";
+
+interface Credentials {
+  email: string;
+  password: string;
+}
 
 const authOption: NextAuthOptions = {
   session: {
@@ -17,21 +21,13 @@ const authOption: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials: any) {
-        const { email, password } = credentials as {
-          email: string;
-          password: string;
-        };
+      async authorize(credentials: Credentials) {
+        const user = await login(credentials);
 
-        const user = {
-          id: 1,
-          name: "ridsor",
-          email: "ridsor@gmail.com",
-          role: "admin",
-        };
-        if (email === "ridsor@gmail.com" && password === "password") {
-          return user;
+        if (user.status) {
+          return user.data;
         }
+
         return null;
       },
     }),

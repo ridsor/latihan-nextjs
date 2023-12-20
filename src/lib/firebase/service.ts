@@ -1,6 +1,6 @@
 import { addDoc, getDoc, getFirestore, query, where } from "firebase/firestore";
 import { collection, getDocs, doc } from "firebase/firestore";
-import bcrypt from "bcrypt";
+import bcrypt, { compare } from "bcrypt";
 import app from "./init";
 
 const firestore = getFirestore(app);
@@ -49,4 +49,43 @@ export const register = async (data: {
         res({ status: false, message: error.message });
       });
   });
+};
+
+export const login = async (data: {
+  email: string;
+  password: string;
+}): Promise<{
+  status: boolean;
+  message: string;
+  data?: { id: string; fullname: string; email: string; password: string };
+}> => {
+  const q = query(
+    collection(firestore, "users"),
+    where("email", "==", data.email)
+  );
+  const snapshot = await getDocs(q);
+  const user: any = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  if (user.length < 1)
+    return {
+      status: false,
+      message: "Email not found",
+    };
+
+  const confirmPassword = await compare(data.password, user[0].password);
+
+  if (!confirmPassword)
+    return {
+      status: false,
+      message: "Wrong password",
+    };
+
+  return {
+    status: true,
+    message: "Login success",
+    data: user[0],
+  };
 };
