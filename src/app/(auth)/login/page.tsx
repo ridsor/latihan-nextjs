@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function Login() {
+export default function Login({ searchParams }: any) {
   const router = useRouter();
 
   const [loginLoading, setLoginLoading] = useState<boolean>(false);
@@ -23,11 +23,11 @@ export default function Login() {
         redirect: false,
         email: email.value,
         password: password.value,
-        callbackUrl: "/dashboard",
+        callbackUrl: searchParams.callbackUrl,
       });
 
       if (res?.ok) {
-        router.push("/dashboard");
+        router.push(searchParams.callbackUrl || "/");
       } else {
         setLoginLoading(false);
         setError("Incorrect email and password");
@@ -45,7 +45,8 @@ export default function Login() {
             <form
               method="POST"
               className="max-w-md w-full"
-              onSubmit={handleLogin}>
+              onSubmit={handleLogin}
+            >
               <h1 className="font-bold text-2xl mb-10 text-center">
                 Sign in to your account
               </h1>
@@ -54,7 +55,7 @@ export default function Login() {
                   <li>{error}</li>
                 </ul>
               )}
-              <div className="form-inputs divide-y border [box-shadow:0_0_3px_1px_rgba(0,0,0,.1)] mb-10 rounded-md">
+              <div className="form-inputs divide-y border [box-shadow:0_0_3px_1px_rgba(0,0,0,.1)] rounded-md">
                 <div className="form-input">
                   <input
                     type="text"
@@ -78,8 +79,27 @@ export default function Login() {
                   loginLoading
                     ? "bg-gray-400"
                     : "hover:bg-[rgb(79,120,229)] bg-[rgb(79,70,229)]"
-                } w-full px-3 py-2 text-white rounded-md font-bold text-base mb-10`}>
-                {loginLoading ? "Loading..." : "Sign up"}
+                } w-full px-3 py-2 text-white rounded-md font-bold text-base my-4`}
+              >
+                {loginLoading ? "Loading..." : "Login"}
+              </button>
+              <hr />
+              <button
+                type="button"
+                disabled={loginLoading}
+                onClick={() =>
+                  signIn("google", {
+                    callbackUrl: searchParams.callbackUrl,
+                    redirect: false,
+                  })
+                }
+                className={`${
+                  loginLoading
+                    ? "bg-gray-400"
+                    : "hover:bg-[rgb(79,120,229)] bg-[rgb(79,70,229)]"
+                } w-full px-3 py-2 text-white rounded-md font-bold text-base my-4`}
+              >
+                {loginLoading ? "Loading..." : "Login with Google"}
               </button>
               <div className="text-center">
                 <span>

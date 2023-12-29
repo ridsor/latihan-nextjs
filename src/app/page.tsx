@@ -1,9 +1,12 @@
 import { Metadata } from "next";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Latihan - Home",
   description: "Latihan menggunakan NextJS",
+  authors: [{ name: "Ridsor", url: "http://localhost:3000" }],
+  icons: {
+    icon: "/react.ico",
+  },
 };
 
 export default function Home() {

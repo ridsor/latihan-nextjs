@@ -1,7 +1,8 @@
-import { login } from "@/lib/firebase/service";
+import { login, loginWithGoogle } from "@/lib/firebase/service";
 import { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 interface Credentials {
   email: string;
@@ -12,7 +13,7 @@ const authOption: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  secret: "ridsor123",
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       type: "credentials",
@@ -31,22 +32,40 @@ const authOption: NextAuthOptions = {
         return null;
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_OAUTH_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET || "",
+    }),
   ],
   callbacks: {
     async jwt({ token, account, profile, user }: any) {
       if (account?.provider === "credentials") {
-        (token.email = user.email),
-          (token.name = user.name),
-          token.role - user.role;
+        token.email = user.email;
+        token.fullname = user.fullname;
+        token.role = user.role;
       }
+
+      if (account?.provider === "google") {
+        const data = {
+          fullname: user.name,
+          email: user.email,
+          type: "google",
+        };
+
+        const result = await loginWithGoogle(data);
+        token.fullname = result.fullname;
+        token.email = result.email;
+        token.role = result.role;
+      }
+
       return token;
     },
     async session({ session, token }: any) {
       if ("email" in token) {
         session.user.email = token.email;
       }
-      if ("name" in token) {
-        session.user.name = token.name;
+      if ("fullname" in token) {
+        session.user.fullname = token.fullname;
       }
       if ("role" in token) {
         session.user.role = token.role;
