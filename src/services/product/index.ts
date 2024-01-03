@@ -1,5 +1,3 @@
-import axios from "axios";
-
 interface Product {
   id: number;
   name: string;
@@ -7,13 +5,17 @@ interface Product {
   image: string;
 }
 
-export const getProduct = async (): Promise<Product[]> => {
+export const getProduct = async (url: string): Promise<Product[]> => {
   let data = [];
-  try {
-    const res = await axios.get("http://localhost:3000/api/products");
-    data = res.data.data;
-  } catch (e) {
-    console.error(e);
+  const res = await fetch(url, {
+    next: { revalidate: 3600 },
+  });
+  const json = await res.json();
+  data = json.data;
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch data");
   }
+
   return data;
 };

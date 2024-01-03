@@ -4,11 +4,6 @@ import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
-interface Credentials {
-  email: string;
-  password: string;
-}
-
 const authOption: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -22,14 +17,14 @@ const authOption: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials: Credentials) {
+      async authorize(credentials: any) {
         const user = await login(credentials);
 
         if (user.status) {
           return user.data;
         }
 
-        return null;
+        return null as any;
       },
     }),
     GoogleProvider({

@@ -16,7 +16,7 @@ type Post = {
 };
 
 export default function Post() {
-  throw new Error("Something went wrong!");
+  // throw new Error("Something went wrong!");
 
   const posts = useAppSelector<Post[]>(postSelectors.selectAll);
 

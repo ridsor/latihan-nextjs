@@ -3,7 +3,7 @@ import { render } from "@testing-library/react";
 
 describe("About Page", () => {
   it("should render", () => {
-    const page = render(<AboutPage />);
-    expect(page).toMatchSnapshot();
+    const view = render(<AboutPage />);
+    expect(view).toMatchSnapshot();
   });
 });
