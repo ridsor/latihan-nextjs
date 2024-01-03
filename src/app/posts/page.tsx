@@ -16,6 +16,8 @@ type Post = {
 };
 
 export default function Post() {
+  throw new Error("Something went wrong!");
+
   const posts = useAppSelector<Post[]>(postSelectors.selectAll);
 
   useEffect(() => {
@@ -32,7 +34,8 @@ export default function Post() {
             <p>{post.body}</p>
             <Link
               href={`/posts/${post.id}`}
-              className="px-3 py-2 bg-blue-500 rounded-md text-white">
+              className="px-3 py-2 bg-blue-500 rounded-md text-white"
+            >
               Detail
             </Link>
           </div>
