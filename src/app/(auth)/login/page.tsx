@@ -1,15 +1,29 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function Login({ searchParams }: any) {
   const router = useRouter();
 
+  const callbackUrl = useMemo(
+    () =>
+      searchParams.callbackUrl == "http://localhost:3000/"
+        ? "http://localhost:3000/dashboard"
+        : searchParams.callbackUrl,
+    [searchParams]
+  );
+
   const [loginLoading, setLoginLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+
+  const handleLoginWithGoogle = () =>
+    signIn("google", {
+      callbackUrl: callbackUrl,
+      redirect: false,
+    });
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,11 +37,11 @@ export default function Login({ searchParams }: any) {
         redirect: false,
         email: email.value,
         password: password.value,
-        callbackUrl: searchParams.callbackUrl,
+        callbackUrl: callbackUrl,
       });
 
       if (res?.ok) {
-        router.push(searchParams.callbackUrl || "/");
+        router.push(callbackUrl);
       } else {
         setLoginLoading(false);
         setError("Incorrect email and password");
@@ -73,6 +87,12 @@ export default function Login({ searchParams }: any) {
                   />
                 </div>
               </div>
+              <Link
+                href="/passwordreset"
+                className="text-[#4F46E5] block mt-2 text-sm"
+              >
+                Lupa password
+              </Link>
               <button
                 disabled={loginLoading}
                 className={`${
@@ -87,12 +107,7 @@ export default function Login({ searchParams }: any) {
               <button
                 type="button"
                 disabled={loginLoading}
-                onClick={() =>
-                  signIn("google", {
-                    callbackUrl: searchParams.callbackUrl,
-                    redirect: false,
-                  })
-                }
+                onClick={handleLoginWithGoogle}
                 className={`${
                   loginLoading
                     ? "bg-gray-400"

@@ -5,9 +5,9 @@ import Link from "next/link";
 type Props = {};
 
 const Navbar = (props: Props) => {
-  const { data, status }: any = useSession();
+  const session: any = useSession();
   return (
-    <nav className="py-2 px-4 flex bg-black text-white items-center justify-between">
+    <nav className="py-2 px-4 flex bg-black text-white items-center justify-between h-[56px]">
       <div className="left flex items-center">
         <h1>Navbar</h1>
         <ul className="flex ml-8 gap-5 text-sm">
@@ -26,17 +26,19 @@ const Navbar = (props: Props) => {
         </ul>
       </div>
       <div className="right">
-        {status === "authenticated" ? (
+        {session.status === "loading" ? (
+          <h4>Loading</h4>
+        ) : session?.status === "authenticated" ? (
           <div className="flex items-center gap-3">
             <Image
-              src={data?.user?.image || "/images/profile.png"}
+              src={session?.data?.user?.image || "/images/profile.png"}
               alt="profile"
               width={100}
               height={100}
               className="bg-white rounded-full w-10 h-10 border"
               priority
             />
-            <h4 className="text-white">{data?.user?.fullname}</h4>
+            <h4 className="text-white">{session?.data?.user?.fullname}</h4>
             <button
               className="bg-white px-4 py-1 rounded-md text-black"
               onClick={() => signOut()}

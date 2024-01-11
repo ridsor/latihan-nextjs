@@ -6,7 +6,6 @@ import ReduxProvider from "@/redux/provider";
 import { usePathname } from "next/navigation";
 import Navbar from "./navbar";
 import { SessionProvider } from "next-auth/react";
-import { Session } from "next-auth";
 
 const inter = Inter({ subsets: ["latin"] });
 

@@ -4,9 +4,10 @@ import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
-const authOption: NextAuthOptions = {
+export const authOption: NextAuthOptions = {
   session: {
     strategy: "jwt",
+    maxAge: 1 * 24 * 60 * 60, // 1 day
   },
   secret: process.env.NEXTAUTH_SECRET,
   providers: [

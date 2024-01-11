@@ -10,6 +10,25 @@ import { collection, getDocs, doc } from "firebase/firestore";
 import bcrypt, { compare } from "bcrypt";
 import app from "./init";
 
+interface User1 {
+  fullname: string;
+  email: string;
+  password: string;
+  role: string;
+  resetPasswordToken: string;
+  resetPasswordTokenExpiry: string;
+}
+
+interface User2 {
+  fullname: string;
+  email: string;
+  password: string;
+  role: string;
+  resetPasswordToken: string;
+  resetPasswordTokenExpiry: string;
+  type: string;
+}
+
 const firestore = getFirestore(app);
 
 export const getData = async (collectionName: string) => {
@@ -26,6 +45,17 @@ export const getDataById = async (collectionName: string, id: string) => {
   const data = querySnapshot.data();
 
   return data;
+};
+
+export const getUserByEmail = async (
+  email: string
+): Promise<(User1 & { id: string }) | (User2 & { id: string })> => {
+  const q = query(collection(firestore, "users"), where("email", "==", email));
+  const snapshot = await getDocs(q);
+  const users = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  const user = users[0] || null;
+
+  return user as any;
 };
 
 export const register = async (data: {
@@ -48,7 +78,11 @@ export const register = async (data: {
     data.role = data.role || "user";
     data.password = await bcrypt.hash(data.password, 10);
 
-    addDoc(collection(firestore, "users"), data)
+    addDoc(collection(firestore, "users"), {
+      ...data,
+      resetPasswordToken: null,
+      resetPasswordTokenExpiry: null,
+    })
       .then(() => {
         res({ status: true, message: "Register success" });
       })
@@ -112,11 +146,25 @@ export async function loginWithGoogle(data: any) {
 
   if (user.length > 0) {
     data.role = user[0].role;
-    await updateDoc(doc(firestore, "users", user[0].id), data);
+    await updateDoc(doc(firestore, "users", user[0].id), {
+      ...data,
+      resetPasswordToken: null,
+      resetPasswordTokenExpiry: null,
+    });
   } else {
     data.role = "user";
-    await addDoc(collection(firestore, "users"), data);
+    await addDoc(collection(firestore, "users"), {
+      ...data,
+      resetPasswordToken: null,
+      resetPasswordTokenExpiry: null,
+    });
   }
 
   return data;
 }
+
+export const setUser = async (id: string, user: User1 | User2) => {
+  await updateDoc(doc(firestore, "users", id), user as any);
+
+  return user;
+};
