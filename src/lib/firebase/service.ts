@@ -146,7 +146,7 @@ export async function loginWithGoogle(data: any) {
 
   if (user.length > 0) {
     data.role = user[0].role;
-    await updateDoc(doc(firestore, "users", user[0].id), {
+    const tes = await updateDoc(doc(firestore, "users", user[0].id), {
       ...data,
       resetPasswordToken: null,
       resetPasswordTokenExpiry: null,
@@ -164,7 +164,22 @@ export async function loginWithGoogle(data: any) {
 }
 
 export const setUser = async (id: string, user: User1 | User2) => {
-  await updateDoc(doc(firestore, "users", id), user as any);
+  updateDoc(doc(firestore, "users", id), {
+    ...user,
+  });
 
   return user;
+};
+
+export const checkResetPasswordToken = async (
+  token: string
+): Promise<boolean> => {
+  const q = query(
+    collection(firestore, "users"),
+    where("resetPasswordToken", "==", token)
+  );
+  const snapshot = await getDocs(q);
+  const users = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+  return users.length > 0;
 };

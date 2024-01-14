@@ -1,27 +1,33 @@
-import { sendEmail } from "@/actions/email";
-import ResetPasswordEmailTemplate from "@/components/ResetPasswordEmailTemplate";
-import React from "react";
+"use client";
+
+import { useState } from "react";
 
 export default function page() {
-  const handleSubmit = async (formmData: FormData) => {
-    "use server";
+  const [loading, setLoading] = useState<boolean>(false);
 
-    sendEmail({
-      from: "Ridsor <onboarding@resend.dev>",
-      to: "ridsorgamerz@gmail.com",
-      subject: "Test Email",
-      react: ResetPasswordEmailTemplate({
-        firstName: "",
-        resetPasswordToken: "",
-      }),
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+
+    setLoading(true);
+    const email = e.currentTarget.email.value;
+    const json = JSON.stringify({
+      email,
     });
+
+    const response = await fetch("/api/user/resetpassword", {
+      method: "POST",
+      body: json,
+    });
+
+    setLoading(false);
+    alert("Permintaan telah terkirim");
   };
 
   return (
     <main>
       <div className="container px-3">
         <h1 className="mt-2 mb-2">Lupa passowrd</h1>
-        <form action={handleSubmit}>
+        <form onSubmit={handleSubmit} method="post">
           <div className="form-input mb-2">
             <input
               type="email"
@@ -32,6 +38,7 @@ export default function page() {
           </div>
           <div className="form-input">
             <button
+              disabled={loading}
               type="submit"
               className=" px-3 py-2 bg-black text-white rounded-md"
             >

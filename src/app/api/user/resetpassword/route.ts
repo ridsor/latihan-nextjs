@@ -1,6 +1,8 @@
 import { getUserByEmail, setUser } from "@/lib/firebase/service";
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { sendEmail } from "@/actions/email";
+import ResetPasswordEmailTemplate from "@/components/ResetPasswordEmailTemplate";
 
 export async function POST(req: NextRequest) {
   const data = await req.json();
@@ -18,9 +20,11 @@ export async function POST(req: NextRequest) {
 
   const resetPasswordToken = crypto.randomBytes(32).toString("base64url");
   const today = new Date();
-  const expiryDate = new Date(today.setDate(today.getDate() + 1));
+  const expiryDate = new Date(today.setDate(today.getDate() + 1)).toISOString();
 
   const { id: userId, ...updateUser } = user;
+  updateUser.resetPasswordToken = resetPasswordToken;
+  updateUser.resetPasswordTokenExpiry = expiryDate;
 
   const newUser = await setUser(userId, updateUser);
 
@@ -33,12 +37,23 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
 
+  await sendEmail({
+    from: "Ridsor <onboarding@resend.dev>",
+    to: newUser.email,
+    subject: "Test Reset Password",
+    react: ResetPasswordEmailTemplate({
+      email: newUser.email,
+      resetPasswordToken: resetPasswordToken,
+    }),
+  });
+
   return NextResponse.json({
     status: "success",
     message: "Successfully made a password reset request",
     user: {
       id: userId,
-      ...newUser,
+      resetPasswordToken: resetPasswordToken,
+      resetPasswordTokenExpiry: expiryDate,
     },
   });
 }

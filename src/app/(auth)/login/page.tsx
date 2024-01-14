@@ -88,7 +88,7 @@ export default function Login({ searchParams }: any) {
                 </div>
               </div>
               <Link
-                href="/passwordreset"
+                href="/resetpassword"
                 className="text-[#4F46E5] block mt-2 text-sm"
               >
                 Lupa password

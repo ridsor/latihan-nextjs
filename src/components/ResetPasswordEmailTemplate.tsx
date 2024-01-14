@@ -1,13 +1,25 @@
 import React from "react";
 
 type Props = {
-  firstName: string;
+  email: string;
   resetPasswordToken: string;
 };
 
 export default function ResetPasswordEmailTemplate({
-  firstName,
+  email,
   resetPasswordToken,
 }: Props) {
-  return <></>;
+  return (
+    <div>
+      <h1>
+        Reset Password for <b>{email}</b>
+      </h1>
+      <p>
+        To reset your password, click on this link and follow the instructions:
+      </p>
+      <a href={`http://localhost:3000/reset?token=${resetPasswordToken}`}>
+        Click here to reset password
+      </a>
+    </div>
+  );
 }
