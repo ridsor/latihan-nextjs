@@ -16,8 +16,8 @@ export default async function page(props: Props) {
   return (
     <main>
       <div className="container px-3">
-        <h1 className="mt-2 mb-2">Reset passowrd</h1>
-        <FormResetPassword />
+        <h1 className="mt-2 mb-2">Reset password</h1>
+        <FormResetPassword token={token as string} />
       </div>
     </main>
   );

@@ -1,4 +1,4 @@
-import { getUserByEmail, setUser } from "@/lib/firebase/service";
+import { getUserBy, setUser } from "@/lib/firebase/service";
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { sendEmail } from "@/actions/email";
@@ -7,13 +7,22 @@ import ResetPasswordEmailTemplate from "@/components/ResetPasswordEmailTemplate"
 export async function POST(req: NextRequest) {
   const data = await req.json();
 
-  const user = await getUserByEmail(data.email);
+  const user = await getUserBy(data.email, "email");
 
   if (!user)
     return NextResponse.json(
       {
         status: "fail",
         message: "User not found",
+      },
+      { status: 404 }
+    );
+
+  if (user.type == "google")
+    return NextResponse.json(
+      {
+        status: "fail",
+        message: "User cant change password",
       },
       { status: 404 }
     );

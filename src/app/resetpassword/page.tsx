@@ -3,23 +3,19 @@
 import { useState } from "react";
 
 export default function page() {
-  const [loading, setLoading] = useState<boolean>(false);
-
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    setLoading(true);
     const email = e.currentTarget.email.value;
     const json = JSON.stringify({
       email,
     });
 
-    const response = await fetch("/api/user/resetpassword", {
+    const response = fetch("/api/user/resetpassword", {
       method: "POST",
       body: json,
     });
 
-    setLoading(false);
     alert("Permintaan telah terkirim");
   };
 
@@ -38,7 +34,6 @@ export default function page() {
           </div>
           <div className="form-input">
             <button
-              disabled={loading}
               type="submit"
               className=" px-3 py-2 bg-black text-white rounded-md"
             >

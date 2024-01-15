@@ -1,3 +1,5 @@
+"use server";
+
 import {
   addDoc,
   getDoc,
@@ -10,23 +12,14 @@ import { collection, getDocs, doc } from "firebase/firestore";
 import bcrypt, { compare } from "bcrypt";
 import app from "./init";
 
-interface User1 {
+interface User {
   fullname: string;
   email: string;
   password: string;
   role: string;
   resetPasswordToken: string;
   resetPasswordTokenExpiry: string;
-}
-
-interface User2 {
-  fullname: string;
-  email: string;
-  password: string;
-  role: string;
-  resetPasswordToken: string;
-  resetPasswordTokenExpiry: string;
-  type: string;
+  type?: string;
 }
 
 const firestore = getFirestore(app);
@@ -47,10 +40,11 @@ export const getDataById = async (collectionName: string, id: string) => {
   return data;
 };
 
-export const getUserByEmail = async (
-  email: string
-): Promise<(User1 & { id: string }) | (User2 & { id: string })> => {
-  const q = query(collection(firestore, "users"), where("email", "==", email));
+export const getUserBy = async (
+  email: string,
+  field: string
+): Promise<User & { id: string }> => {
+  const q = query(collection(firestore, "users"), where(field, "==", email));
   const snapshot = await getDocs(q);
   const users = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   const user = users[0] || null;
@@ -163,8 +157,8 @@ export async function loginWithGoogle(data: any) {
   return data;
 }
 
-export const setUser = async (id: string, user: User1 | User2) => {
-  updateDoc(doc(firestore, "users", id), {
+export const setUser = async (id: string, user: User) => {
+  await updateDoc(doc(firestore, "users", id), {
     ...user,
   });
 
@@ -179,7 +173,39 @@ export const checkResetPasswordToken = async (
     where("resetPasswordToken", "==", token)
   );
   const snapshot = await getDocs(q);
-  const users = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  const users: any = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
 
-  return users.length > 0;
+  if (users.length < 1) return false;
+
+  const tokenExpiry = new Date(users[0].resetPasswordTokenExpiry);
+  const today = new Date();
+  if (today > tokenExpiry) return false;
+
+  return true;
+};
+
+export const changeUserPassword = async (
+  token: string,
+  password: string
+): Promise<string> => {
+  const user = await getUserBy(token, "resetPasswordToken");
+  if (!user) throw new Error("User not found");
+
+  const today = new Date();
+  const tokenExpiry = new Date(user.resetPasswordTokenExpiry);
+  console.log(tokenExpiry);
+  if (today > tokenExpiry) throw new Error("Token expired");
+
+  const passwordHash = bcrypt.hashSync(password, 10);
+  await updateDoc(doc(firestore, "users", user.id), {
+    ...user,
+    password: passwordHash,
+    resetPasswordToken: null,
+    resetPasswordTokenExpiry: null,
+  });
+
+  return "Password changed successfully";
 };

@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   const req = await request.json();
 
-  const validate = registerValidate(req);
+  const validate = await registerValidate(req);
   if (validate.length > 0)
     return NextResponse.json(
       {
