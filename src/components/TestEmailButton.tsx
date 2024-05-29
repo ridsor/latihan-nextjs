@@ -15,7 +15,11 @@ export default function TestEmailButton() {
 
   return (
     <div>
-      <button onClick={handleSubmit}>Send Test Email</button>
+      <button
+        onClick={handleSubmit}
+        className="bg-indigo-600 text-white text-sm leading-6 font-medium py-2 px-3 rounded-lg">
+        Send Test Email
+      </button>
     </div>
   );
 }

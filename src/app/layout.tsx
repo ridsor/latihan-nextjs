@@ -6,6 +6,7 @@ import ReduxProvider from "@/redux/provider";
 import { usePathname } from "next/navigation";
 import Navbar from "./navbar";
 import { SessionProvider } from "next-auth/react";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,6 +29,7 @@ export default function RootLayout({
           </SessionProvider>
         </ReduxProvider>
       </body>
+      <Script src="/js/main.js" />
     </html>
   );
 }
